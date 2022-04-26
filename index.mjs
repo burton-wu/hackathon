@@ -1,5 +1,5 @@
 import { loadStdlib, ask } from '@reach-sh/stdlib';
-import * as backend from './build/index.main.mjs';
+import * as backend from '../hackathon-old/build/index.main.mjs';
 const stdlib = loadStdlib();
 
 const startingBalance = stdlib.parseCurrency(1000);
@@ -17,10 +17,10 @@ console.log(`Starting the certification process as ${who}`);
 
 let acc = null;
 acc = await stdlib.newTestAccount(stdlib.parseCurrency(1000));
+*/
 
 const ctcAlice = accAlice.contract(backend);
 const ctcBob = accBob.contract(backend, ctcAlice.getInfo());
-*/
 
 const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 const OUTCOME = ['OVERALL', 'CERT', 'FRAUD'];

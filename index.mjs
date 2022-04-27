@@ -50,8 +50,11 @@ await Promise.all([
     ...Player('Creator'),
     setFee: () => {
       const fee = stdlib.parseCurrency(5);
-      console.log(`Creator set the assessment fee of ${fmt(fee)}.`);
+      console.log(`Creator sets the assessment fee of ${fmt(fee)}.`);
       return fee;
+    },
+    requestPasscode: (week) => {
+      console.log(`Creator seeks the passcode for Week ${WEEK[week]}.`);
     },
   }),
 
@@ -59,6 +62,11 @@ await Promise.all([
     ...Player('Alice'),
     acceptFee: (amt) => {
       console.log(`Alice accepts the assessment fee of ${fmt(amt)}.`);
+    },
+    providePasscode: (week) => {
+      const passcode = Math.floor(Math.random()*1000000);
+      console.log(`Alice provides passcode ${passcode} for Week ${WEEK[week]}.`);
+      return passcode;
     },
   }),
 

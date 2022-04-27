@@ -7,13 +7,24 @@ const Player = {
 
 export const main = Reach.App(() => {
 
-  // Alice is the customer who asks for certificate(s)
-  const Alice = Participant('Alice', {
+  /*
+  const Creator = Participant('Creator', {
+    getSale: Fun([], Object({
+        nftId: Token,
+        minBid: UInt,
+        lenInBlocks: UInt,
+    })),
+    auctionReady: Fun([], Null),
+    seeBid: Fun([Address, UInt], Null),
+    showOutcome: Fun([Address, UInt], Null),
+  });
+  */
+
+  const Creator = Participant('Creator', {
     ...Player,
   });
 
-  // Bob is the certification organisation
-  const Bob   = Participant('Bob', {
+  const Alice = Participant('Alice', {
     ...Player,
   });
 
@@ -30,7 +41,7 @@ export const main = Reach.App(() => {
   // Currently outcome is based on mod 3
   const outcome = weekAlice % 3;
 
-  each([Alice, Bob], () => {
+  each([Creator, Alice], () => {
     interact.seeOutcome(outcome);
   });
 

@@ -1,26 +1,26 @@
 import { loadStdlib, ask } from '@reach-sh/stdlib';
-import * as backend from '../hackathon-old/build/index.main.mjs';
-const stdlib = loadStdlib();
+import * as backend from './build/index.main.mjs';
 
+const stdlib = await loadStdlib();
 const startingBalance = stdlib.parseCurrency(1000);
+
+console.log(`Creating test account for Admin`);
+const accCreator = await stdlib.newTestAccount(startingBalance);
+
+console.log(`Creating test account for Alice`);
 const accAlice = await stdlib.newTestAccount(startingBalance);
-const accBob = await stdlib.newTestAccount(startingBalance);
 
 /*
-const isAlice = await ask.ask(
-  `Are you Alice?`,
-  ask.yesno
-);
-const who = isAlice ? 'Alice' : 'Bob';
-
-console.log(`Starting the certification process as ${who}`);
-
-let acc = null;
-acc = await stdlib.newTestAccount(stdlib.parseCurrency(1000));
+console.log(`Having Admin create an NFT`);
+const theNFT = await stdlib.launchToken(accCreeator, "bumple", "NFT", { supply: 1 });
+const nftId = theNFT.id;
+const minBid = stdlib.parseCurrency(5);
+const lenInBlocks = 10;
+const params = { nftId, minBid, lenInBlocks };
 */
 
 const ctcAlice = accAlice.contract(backend);
-const ctcBob = accBob.contract(backend, ctcAlice.getInfo());
+const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
 
 const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 const OUTCOME = ['OVERALL', 'CERT', 'FRAUD'];
@@ -37,10 +37,10 @@ const Player = (Who) => ({
 });
 
 await Promise.all([
+  ctcCreator.p.Creator({
+    ...Player('Creator'),
+  }),
   ctcAlice.p.Alice({
     ...Player('Alice'),
-  }),
-  ctcBob.p.Bob({
-    ...Player('Bob'),
   }),
 ]);

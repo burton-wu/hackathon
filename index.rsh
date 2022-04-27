@@ -1,4 +1,5 @@
 'reach 0.1';
+'use strict';
 
 const Player = {
   getWeek: Fun([], UInt),
@@ -22,10 +23,14 @@ export const main = Reach.App(() => {
 
   const Creator = Participant('Creator', {
     ...Player,
+    //assessmentFee: UInt,
+    //setFee: UInt,
+    setFee: Fun([], UInt),
   });
 
-  const Alice = Participant('Alice', {
+  const Alice   = Participant('Alice', {
     ...Player,
+    acceptFee: Fun([UInt], Null),
   });
 
   init();
@@ -38,8 +43,29 @@ export const main = Reach.App(() => {
 
   commit();
 
+  Creator.only(() => {
+    //const assessmentFee = declassify(interact.assessmentFee);
+    const assessmentFee = declassify(interact.setFee());
+  });
+
+  Creator.publish(assessmentFee);
+
+  commit();
+
+  Alice.only(() => {
+    interact.acceptFee(assessmentFee);
+  });
+
+  //Alice.pay(assessmentFee);
+
+  //commit();
+
   // Currently outcome is based on mod 3
   const outcome = weekAlice % 3;
+
+  //transfer(assessmentFee).to(Creator);
+
+  //commit();
 
   each([Creator, Alice], () => {
     interact.seeOutcome(outcome);

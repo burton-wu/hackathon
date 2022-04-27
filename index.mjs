@@ -10,6 +10,14 @@ const accCreator = await stdlib.newTestAccount(startingBalance);
 console.log(`Creating test account for Alice`);
 const accAlice = await stdlib.newTestAccount(startingBalance);
 
+const fmt = (x) => stdlib.formatCurrency(x, 4);
+const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
+const beforeCreator = await getBalance(accCreator);
+const beforeAlice = await getBalance(accAlice);
+
+const ctcAlice = accAlice.contract(backend);
+const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
+
 /*
 console.log(`Having Admin create an NFT`);
 const theNFT = await stdlib.launchToken(accCreeator, "bumple", "NFT", { supply: 1 });
@@ -18,9 +26,6 @@ const minBid = stdlib.parseCurrency(5);
 const lenInBlocks = 10;
 const params = { nftId, minBid, lenInBlocks };
 */
-
-const ctcAlice = accAlice.contract(backend);
-const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
 
 const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 const OUTCOME = ['OVERALL', 'CERT', 'FRAUD'];
@@ -39,8 +44,23 @@ const Player = (Who) => ({
 await Promise.all([
   ctcCreator.p.Creator({
     ...Player('Creator'),
+    //assessmentFee: stdlib.parseCurrency(5),
+    setFee: () => {
+      const fee = stdlib.parseCurrency(5);
+      console.log(`Creator set the assessment fee of ${fmt(fee)}.`);
+      return fee;
+    },
   }),
   ctcAlice.p.Alice({
     ...Player('Alice'),
+    acceptFee: (amt) => {
+      console.log(`Alice accepts the assessment fee of ${fmt(amt)}.`);
+    },
   }),
 ]);
+
+const afterCreator = await getBalance(accCreator);
+const afterAlice = await getBalance(accAlice);
+
+console.log(`Creator went from ${beforeCreator} to ${afterCreator}.`);
+console.log(`Alice went from ${beforeAlice} to ${afterAlice}.`);

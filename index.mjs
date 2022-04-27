@@ -31,32 +31,37 @@ const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 const OUTCOME = ['OVERALL', 'CERT', 'FRAUD'];
 
 const Player = (Who) => ({
+
   getWeek: () => {
     const week = Math.floor(Math.random() * 6);
     console.log(`${Who} asked for Week ${WEEK[week]}`);
     return week;
   },
+
   seeOutcome: (outcome) => {
     console.log(`${Who} saw outcome ${OUTCOME[outcome]}`);
   },
+
 });
 
 await Promise.all([
+
   ctcCreator.p.Creator({
     ...Player('Creator'),
-    //assessmentFee: stdlib.parseCurrency(5),
     setFee: () => {
       const fee = stdlib.parseCurrency(5);
       console.log(`Creator set the assessment fee of ${fmt(fee)}.`);
       return fee;
     },
   }),
+
   ctcAlice.p.Alice({
     ...Player('Alice'),
     acceptFee: (amt) => {
       console.log(`Alice accepts the assessment fee of ${fmt(amt)}.`);
     },
   }),
+
 ]);
 
 const afterCreator = await getBalance(accCreator);

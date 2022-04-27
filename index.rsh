@@ -23,8 +23,6 @@ export const main = Reach.App(() => {
 
   const Creator = Participant('Creator', {
     ...Player,
-    //assessmentFee: UInt,
-    //setFee: UInt,
     setFee: Fun([], UInt),
   });
 
@@ -35,6 +33,7 @@ export const main = Reach.App(() => {
 
   init();
 
+  // Alice requests assessment for Week X
   Alice.only(() => {
     const weekAlice = declassify(interact.getWeek());
   });
@@ -43,8 +42,8 @@ export const main = Reach.App(() => {
 
   commit();
 
+  // Creator determines the fee
   Creator.only(() => {
-    //const assessmentFee = declassify(interact.assessmentFee);
     const assessmentFee = declassify(interact.setFee());
   });
 
@@ -52,21 +51,20 @@ export const main = Reach.App(() => {
 
   commit();
 
+  // Alice accept and pay the assessment fee
   Alice.only(() => {
     interact.acceptFee(assessmentFee);
   });
 
-  //Alice.pay(assessmentFee);
+  Alice.pay(assessmentFee);
+  transfer(assessmentFee).to(Creator);
 
-  //commit();
+  commit();
 
-  // Currently outcome is based on mod 3
+  // Currently outcome is calculated based on mod 3
   const outcome = weekAlice % 3;
 
-  //transfer(assessmentFee).to(Creator);
-
-  //commit();
-
+  // Display the final outcome
   each([Creator, Alice], () => {
     interact.seeOutcome(outcome);
   });

@@ -28,7 +28,7 @@ const params = { nftId, minBid, lenInBlocks };
 */
 
 const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
-const OUTCOME = ['OVERALL', 'CERT', 'FRAUD'];
+const OUTCOME = ['FRAUD', 'CERT', 'OVERALL'];
 
 const Player = (Who) => ({
 
@@ -64,7 +64,12 @@ await Promise.all([
       console.log(`Alice accepts the assessment fee of ${fmt(amt)}.`);
     },
     providePasscode: (week) => {
-      const passcode = Math.floor(Math.random()*1000000);
+      // BW: But first why do I need Math.floor?
+      // BW: Why the line below gives out 41 when week=4 without the Math.floor?
+      // BW: week is not a number?
+      //const passcode = week+1;
+      //const passcode = (Math.floor(week)+1)*10;
+      const passcode = 30;
       console.log(`Alice provides passcode ${passcode} for Week ${WEEK[week]}.`);
       return passcode;
     },

@@ -32,6 +32,11 @@ export const main = Reach.App(() => {
 
   const Creator = Participant('Creator', {
     ...Player,
+    createNFT: Fun([], Object({
+      nftId: Token,
+      minBid: UInt,
+      lenInBlocks: UInt,
+    })),
     setFee: Fun([], UInt),
     requestPasscode: Fun([UInt], Null),
   });
@@ -44,7 +49,27 @@ export const main = Reach.App(() => {
 
   init();
 
+  // Creator defines the NFT parameters
+  Creator.only(() => {
+    const {nftId, minBid, lenInBlocks} = declassify(interact.createNFT());
+  });
+  Creator.publish(nftId, minBid, lenInBlocks);
+
+  const amt = 0;
+
+  commit();
+
+  // Creator mint the NFT with cost of amt
+  // BW: Is my comment correct?
+  // BW: Is this needed?
+  // BW: Why this won't work when amt is set to 1?
+  // BW: Run gets "Error: Assertion failed: local account token balance is insufficient: 0 < 1"
+  Creator.pay([[amt, nftId]]);
+
+  commit();
+
   // Alice requests assessment for Week X
+  // BW: Actually do I really need all these .only? We are not playing RPS?
   Alice.only(() => {
     const weekNumber = declassify(interact.getWeek());
   });
@@ -87,9 +112,12 @@ export const main = Reach.App(() => {
   commit();
 
   // Alice pays the assessment fee to the Creator
+  // NFT is issued to Alice
   Alice.pay(assessmentFee);
 
   transfer(assessmentFee).to(Creator);
+
+  transfer(amt, nftId).to(Alice);
 
   commit();
 

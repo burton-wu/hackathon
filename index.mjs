@@ -15,17 +15,22 @@ const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
 const beforeCreator = await getBalance(accCreator);
 const beforeAlice = await getBalance(accAlice);
 
-const ctcAlice = accAlice.contract(backend);
-const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
+// BW: In our case, Alice is the one trigger the smart contract, correct?
+// BW: I ran into errors when minting the NFT, so have switched the two around
+const ctcCreator = accAlice.contract(backend);
+const ctcAlice = accCreator.contract(backend, ctcCreator.getInfo());
+//const ctcAlice = accAlice.contract(backend);
+//const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
 
-/*
-console.log(`Having Admin create an NFT`);
-const theNFT = await stdlib.launchToken(accCreeator, "bumple", "NFT", { supply: 1 });
+// Create an NFT
+// BW: This will need to be exapnded to multiple unique ones
+// BW: NFT vs POAR? Will circle back to this later
+console.log(`Admin creates an NFT`);
+const theNFT = await stdlib.launchToken(accCreator, "bumple", "NFT", { supply: 1 });
 const nftId = theNFT.id;
-const minBid = stdlib.parseCurrency(5);
+const minBid = stdlib.parseCurrency(0);
 const lenInBlocks = 10;
 const params = { nftId, minBid, lenInBlocks };
-*/
 
 const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
 const OUTCOME = ['FRAUD', 'CERT', 'OVERALL'];
@@ -48,6 +53,10 @@ await Promise.all([
 
   ctcCreator.p.Creator({
     ...Player('Creator'),
+    createNFT: () => {
+      console.log(`Creator sets parameters of the NFT:`, params);
+      return params;
+    },
     setFee: () => {
       const fee = stdlib.parseCurrency(5);
       console.log(`Creator sets the assessment fee of ${fmt(fee)}.`);

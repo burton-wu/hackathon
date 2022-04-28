@@ -74,7 +74,7 @@ export const main = Reach.App(() => {
     const weekNumber = declassify(interact.getWeek());
   });
 
-  require(weekNumber<6);
+  //require(weekNumber<6);
   //check(weekNumber<6,"Invalid week has been selected.");
   Alice.publish(weekNumber);
 
@@ -108,8 +108,8 @@ export const main = Reach.App(() => {
 
   // Creator verifies if the passcode is authentic and corresponds to the week
   // BW: The statement below doesn't work; hardcode PASSCODE[0] in the interim
-  const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 0 : 1;
-  //const outcome = (weekPasscode == PASSCODE[2]) ? 1 : 0; 
+  //const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 0 : 1;
+  const outcome = (weekPasscode == PASSCODE[2]) ? 1 : 0; 
 
   /*
   outcome = (Condition1) ? x :

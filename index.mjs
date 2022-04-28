@@ -4,7 +4,7 @@ import * as backend from './build/index.main.mjs';
 const stdlib = await loadStdlib();
 const startingBalance = stdlib.parseCurrency(1000);
 
-console.log(`Creating test account for Admin`);
+console.log(`Creating test account for Creator`);
 const accCreator = await stdlib.newTestAccount(startingBalance);
 
 console.log(`Creating test account for Alice`);
@@ -12,20 +12,22 @@ const accAlice = await stdlib.newTestAccount(startingBalance);
 
 const fmt = (x) => stdlib.formatCurrency(x, 4);
 const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
+
+console.log(`Store the balances for both Creator and Alice`);
 const beforeCreator = await getBalance(accCreator);
 const beforeAlice = await getBalance(accAlice);
 
 // BW: In our case, Alice is the one trigger the smart contract, correct?
 // BW: I ran into errors when minting the NFT, so have switched the two around
-const ctcCreator = accAlice.contract(backend);
-const ctcAlice = accCreator.contract(backend, ctcCreator.getInfo());
-//const ctcAlice = accAlice.contract(backend);
-//const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
+// BW: But, why? 
+const ctcCreator = accCreator.contract(backend);
+const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 
 // Create an NFT
+// BW: lanuchToken is just about setting parameters?
 // BW: This will need to be exapnded to multiple unique ones
 // BW: NFT vs POAR? Will circle back to this later
-console.log(`Admin creates an NFT`);
+console.log(`Creator creates an NFT`);
 const theNFT = await stdlib.launchToken(accCreator, "bumple", "NFT", { supply: 1 });
 const nftId = theNFT.id;
 const minBid = stdlib.parseCurrency(0);
@@ -75,10 +77,9 @@ await Promise.all([
     providePasscode: (week) => {
       // BW: But first why do I need Math.floor?
       // BW: Why the line below gives out 41 when week=4 without the Math.floor?
-      // BW: week is not a number?
-      //const passcode = week+1;
-      //const passcode = (Math.floor(week)+1)*10;
-      const passcode = 30;
+      //     In other words why week is not a number?
+      // BW: last random number allows the outcome to be FRAUD
+      const passcode = (Math.floor(week)+1)*10+Math.floor(Math.random()*2);
       console.log(`Alice provides passcode ${passcode} for Week ${WEEK[week]}.`);
       return passcode;
     },

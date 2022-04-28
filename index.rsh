@@ -5,11 +5,9 @@
 // BW: Ideally would like to turn this into an array of strings
 // BW: May need to research into number-character conversions
 // BW: What's the difference between arrays and maps?
-//const PASSCODE = [10, 20, 30, 40, 50, 60];
-// BW: I get the "array bounds check" error messages
 const PASSCODE = array(UInt, [10, 20, 30, 40, 50, 60]);
 
-// BW: Why Int doesn't work?
+// BW: Why Int instead of UInt won't work?
 const Player = {
   getWeek: Fun([], UInt),
   seeOutcome: Fun([UInt], Null),
@@ -60,23 +58,33 @@ export const main = Reach.App(() => {
   commit();
 
   // Creator mint the NFT with cost of amt
-  // BW: Is my comment correct?
-  // BW: Is this needed?
+  // BW: Is my notes correct?
+  // BW: Why do I need so many brackets?
   // BW: Why this won't work when amt is set to 1?
-  // BW: Run gets "Error: Assertion failed: local account token balance is insufficient: 0 < 1"
+  //     "Error: Assertion failed: local account token balance is insufficient: 0 < 1"
   Creator.pay([[amt, nftId]]);
 
   commit();
 
+  // BW: Next step is have the while loop and put into parallelReduce
+  // BW: Also need to implement delays
+
   // Alice requests assessment for Week X
-  // BW: Actually do I really need all these .only? We are not playing RPS?
+  // BW: Actually do I really need all these in Alice.only()?
+  //     We are not playing RPS? It's not that Creator gets an advantage?
   Alice.only(() => {
+
     const weekNumber = declassify(interact.getWeek());
+
+    // check the input week number is valid on Alice's computer
+    check(weekNumber<6,"Invalid week has been selected.");
+
   });
 
-  //require(weekNumber<6);
-  //check(weekNumber<6,"Invalid week has been selected.");
   Alice.publish(weekNumber);
+
+  // check the input week number is valid for the smart contract
+  check(weekNumber<6,"Invalid week has been selected.");
 
   commit();
 
@@ -107,10 +115,10 @@ export const main = Reach.App(() => {
   Alice.publish(weekPasscode);
 
   // Creator verifies if the passcode is authentic and corresponds to the week
-  // BW: The statement below doesn't work; hardcode PASSCODE[0] in the interim
-  //const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 0 : 1;
-  const outcome = (weekPasscode == PASSCODE[2]) ? 1 : 0; 
+  // Note: x[y] notation is only valid if x is an array (not a tuple)
+  const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 1 : 0;
 
+  // BW: Next step is to convert this into 3 conditions
   /*
   outcome = (Condition1) ? x :
   (Condition2) ? y :
@@ -120,11 +128,11 @@ export const main = Reach.App(() => {
   commit();
 
   // Alice pays the assessment fee to the Creator
-  // NFT is issued to Alice
   Alice.pay(assessmentFee);
 
   transfer(assessmentFee).to(Creator);
 
+  // NFT is issued to Alice
   transfer(amt, nftId).to(Alice);
 
   commit();

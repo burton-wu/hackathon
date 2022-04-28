@@ -5,9 +5,9 @@
 // BW: Ideally would like to turn this into an array of strings
 // BW: May need to research into number-character conversions
 // BW: What's the difference between arrays and maps?
-const PASSCODE = [10, 20, 30, 40, 50, 60];
+//const PASSCODE = [10, 20, 30, 40, 50, 60];
 // BW: I get the "array bounds check" error messages
-//const PASSCODE = array(UInt, [10, 20, 30, 40, 50, 60]);
+const PASSCODE = array(UInt, [10, 20, 30, 40, 50, 60]);
 
 // BW: Why Int doesn't work?
 const Player = {
@@ -74,6 +74,8 @@ export const main = Reach.App(() => {
     const weekNumber = declassify(interact.getWeek());
   });
 
+  require(weekNumber<6);
+  //check(weekNumber<6,"Invalid week has been selected.");
   Alice.publish(weekNumber);
 
   commit();
@@ -106,8 +108,14 @@ export const main = Reach.App(() => {
 
   // Creator verifies if the passcode is authentic and corresponds to the week
   // BW: The statement below doesn't work; hardcode PASSCODE[0] in the interim
-  //const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 0 : 1;
-  const outcome = (weekPasscode == PASSCODE[2]) ? 1 : 0; 
+  const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 0 : 1;
+  //const outcome = (weekPasscode == PASSCODE[2]) ? 1 : 0; 
+
+  /*
+  outcome = (Condition1) ? x :
+  (Condition2) ? y :
+                              z
+  */
 
   commit();
 

@@ -1,32 +1,18 @@
 'reach 0.1';
 'use strict';
 
-// BW: Hardcode the passcodes for now
-// BW: Ideally would like to turn this into an array of strings
-// BW: May need to research into number-character conversions
-// BW: What's the difference between arrays and maps?
+// BW: Consider turn this into an array of strings
 const PASSCODE = array(UInt, [10, 20, 30, 40, 50, 60]);
 
-// BW: Why Int instead of UInt won't work?
+// BW: Need to create a map for the NFTs
+
+// BW: getWeek should moved to Alice
 const Player = {
   getWeek: Fun([], UInt),
   seeOutcome: Fun([UInt], Null),
 };
 
 export const main = Reach.App(() => {
-
-  /*
-  const Creator = Participant('Creator', {
-    getSale: Fun([], Object({
-        nftId: Token,
-        minBid: UInt,
-        lenInBlocks: UInt,
-    })),
-    auctionReady: Fun([], Null),
-    seeBid: Fun([Address, UInt], Null),
-    showOutcome: Fun([Address, UInt], Null),
-  });
-  */
 
   const Creator = Participant('Creator', {
     ...Player,
@@ -39,7 +25,7 @@ export const main = Reach.App(() => {
     requestPasscode: Fun([UInt], Null),
   });
 
-  const Alice   = Participant('Alice', {
+  const Alice = Participant('Alice', {
     ...Player,
     acceptFee: Fun([UInt], Null),
     providePasscode: Fun([UInt], UInt),
@@ -47,43 +33,42 @@ export const main = Reach.App(() => {
 
   init();
 
-  // Creator defines the NFT parameters
+  // Creator creates the NFT and publishes the parameters
   Creator.only(() => {
     const {nftId, minBid, lenInBlocks} = declassify(interact.createNFT());
   });
   Creator.publish(nftId, minBid, lenInBlocks);
 
-  const amt = 0;
+  // Cost of moving the NFT to the smart contract
+  const amt = 1;
 
   commit();
 
-  // Creator mint the NFT with cost of amt
-  // BW: Is my notes correct?
+  // Creator moves the NFT to the smart contract
   // BW: Why do I need so many brackets?
-  // BW: Why this won't work when amt is set to 1?
-  //     "Error: Assertion failed: local account token balance is insufficient: 0 < 1"
   Creator.pay([[amt, nftId]]);
 
   commit();
 
-  // BW: Next step is have the while loop and put into parallelReduce
-  // BW: Also need to implement delays
+  // BW: Incorporate the while loop and put into parallelReduce where appropriate
+  // BW: Implement delays
+  // BW: Add "Claire" into the equation so we can see what the public sees
 
   // Alice requests assessment for Week X
-  // BW: Actually do I really need all these in Alice.only()?
-  //     We are not playing RPS? It's not that Creator gets an advantage?
+  // Note: declassify can only occure with .only()
   Alice.only(() => {
 
     const weekNumber = declassify(interact.getWeek());
 
-    // check the input week number is valid on Alice's computer
+    // Check the input week number is valid on Alice's computer
+    // BW: will try to make "6" being dynamic
     check(weekNumber<6,"Invalid week has been selected.");
 
   });
 
   Alice.publish(weekNumber);
 
-  // check the input week number is valid for the smart contract
+  // Check the input week number is valid for the smart contract
   check(weekNumber<6,"Invalid week has been selected.");
 
   commit();
@@ -97,7 +82,7 @@ export const main = Reach.App(() => {
 
   commit();
 
-  // Alice accept the assessment fee
+  // Alice accepts the assessment fee
   Alice.only(() => {
     interact.acceptFee(assessmentFee);
   });
@@ -108,6 +93,7 @@ export const main = Reach.App(() => {
   });
 
   // Alice provides the passcode for the Week
+  // BW: Conver this into a private mode as we don't want everyone to see passcode
   Alice.only (() => {
     const weekPasscode = declassify(interact.providePasscode(weekNumber));
   });
@@ -118,7 +104,7 @@ export const main = Reach.App(() => {
   // Note: x[y] notation is only valid if x is an array (not a tuple)
   const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 1 : 0;
 
-  // BW: Next step is to convert this into 3 conditions
+  // BW: Convert outcome into 3 conditions (or two different variables)
   /*
   outcome = (Condition1) ? x :
   (Condition2) ? y :
@@ -126,6 +112,9 @@ export const main = Reach.App(() => {
   */
 
   commit();
+
+  // BW: Condition loop needs to be added to retrun the money to Alice
+  //     and not issuing NFT etc
 
   // Alice pays the assessment fee to the Creator
   Alice.pay(assessmentFee);

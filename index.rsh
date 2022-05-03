@@ -17,8 +17,13 @@ export const main = Reach.App(() => {
   const Creator = Participant('Creator', {
     ...Player,
     createNFT: Fun([], Object({
-      nftId: Token,
-      lenInBlocks: UInt,
+      nftId1: Token,
+      nftId2: Token,
+      nftId3: Token,
+      nftId4: Token,
+      nftId5: Token,
+      nftId6: Token,
+      nftId7: Token,
     })),
     setFee: Fun([], UInt),
     requestPasscode: Fun([UInt], Null),
@@ -34,11 +39,68 @@ export const main = Reach.App(() => {
 
   // Creator creates the NFT and publishes the parameters
   Creator.only(() => {
-    const {nftId, lenInBlocks} = declassify(interact.createNFT());
-  });
-  Creator.publish(nftId, lenInBlocks);
 
-  commit();
+    const {nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7} = declassify(interact.createNFT());
+    
+    check(nftId1 != nftId2,"Invalid tokens.");
+    check(nftId1 != nftId3,"Invalid tokens.");
+    check(nftId1 != nftId4,"Invalid tokens.");
+    check(nftId1 != nftId5,"Invalid tokens.");
+    check(nftId1 != nftId6,"Invalid tokens.");
+    check(nftId1 != nftId7,"Invalid tokens.");
+  
+    check(nftId2 != nftId3,"Invalid tokens.");
+    check(nftId2 != nftId4,"Invalid tokens.");
+    check(nftId2 != nftId5,"Invalid tokens.");
+    check(nftId2 != nftId6,"Invalid tokens.");
+    check(nftId2 != nftId7,"Invalid tokens.");
+  
+    check(nftId3 != nftId4,"Invalid tokens.");
+    check(nftId3 != nftId5,"Invalid tokens.");
+    check(nftId3 != nftId6,"Invalid tokens.");
+    check(nftId3 != nftId7,"Invalid tokens.");
+  
+    check(nftId4 != nftId5,"Invalid tokens.");
+    check(nftId4 != nftId6,"Invalid tokens.");
+    check(nftId4 != nftId7,"Invalid tokens.");
+  
+    check(nftId5 != nftId6,"Invalid tokens.");
+    check(nftId5 != nftId7,"Invalid tokens.");
+  
+    check(nftId6 != nftId7,"Invalid tokens.");
+
+  });
+
+  Creator.publish(nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7);
+
+  check(nftId1 != nftId2,"Invalid tokens.");
+  check(nftId1 != nftId3,"Invalid tokens.");
+  check(nftId1 != nftId4,"Invalid tokens.");
+  check(nftId1 != nftId5,"Invalid tokens.");
+  check(nftId1 != nftId6,"Invalid tokens.");
+  check(nftId1 != nftId7,"Invalid tokens.");
+
+  check(nftId2 != nftId3,"Invalid tokens.");
+  check(nftId2 != nftId4,"Invalid tokens.");
+  check(nftId2 != nftId5,"Invalid tokens.");
+  check(nftId2 != nftId6,"Invalid tokens.");
+  check(nftId2 != nftId7,"Invalid tokens.");
+
+  check(nftId3 != nftId4,"Invalid tokens.");
+  check(nftId3 != nftId5,"Invalid tokens.");
+  check(nftId3 != nftId6,"Invalid tokens.");
+  check(nftId3 != nftId7,"Invalid tokens.");
+
+  check(nftId4 != nftId5,"Invalid tokens.");
+  check(nftId4 != nftId6,"Invalid tokens.");
+  check(nftId4 != nftId7,"Invalid tokens.");
+
+  check(nftId5 != nftId6,"Invalid tokens.");
+  check(nftId5 != nftId7,"Invalid tokens.");
+
+  check(nftId6 != nftId7,"Invalid tokens.");
+
+   commit();
 
   // BW: Incorporate the while loop and put into parallelReduce where appropriate
   // BW: Implement delays
@@ -108,8 +170,8 @@ export const main = Reach.App(() => {
     const amt = 1;
 
     // BW: Why do I need so many brackets?
-    Creator.pay([[amt, nftId]]);
-    transfer([[amt, nftId]]).to(Alice);
+    Creator.pay([[amt, nftId1]]);
+    transfer([[amt, nftId1]]).to(Alice);
 
   }
 

@@ -2,14 +2,14 @@
 'use strict';
 
 // BW: Consider turn this into an array of strings
-const PASSCODE = array(UInt, [10, 20, 30, 40, 50, 60]);
+const PASSCODE = array(UInt, [1000, 2000, 3000, 4000, 5000, 6000]);
 
 // BW: Need to create a map for the NFTs
 
-// BW: getWeek should moved to Alice
 const Player = {
   getWeek: Fun([], UInt),
-  seeOutcome: Fun([UInt], Null),
+  seeWeekOutcome: Fun([Bool], Null),
+  seeOverallOutcome: Fun([Bool], Null),
 };
 
 export const main = Reach.App(() => {
@@ -18,7 +18,6 @@ export const main = Reach.App(() => {
     ...Player,
     createNFT: Fun([], Object({
       nftId: Token,
-      minBid: UInt,
       lenInBlocks: UInt,
     })),
     setFee: Fun([], UInt),
@@ -35,18 +34,9 @@ export const main = Reach.App(() => {
 
   // Creator creates the NFT and publishes the parameters
   Creator.only(() => {
-    const {nftId, minBid, lenInBlocks} = declassify(interact.createNFT());
+    const {nftId, lenInBlocks} = declassify(interact.createNFT());
   });
-  Creator.publish(nftId, minBid, lenInBlocks);
-
-  // Cost of moving the NFT to the smart contract
-  const amt = 1;
-
-  commit();
-
-  // Creator moves the NFT to the smart contract
-  // BW: Why do I need so many brackets?
-  Creator.pay([[amt, nftId]]);
+  Creator.publish(nftId, lenInBlocks);
 
   commit();
 
@@ -93,7 +83,7 @@ export const main = Reach.App(() => {
   });
 
   // Alice provides the passcode for the Week
-  // BW: Conver this into a private mode as we don't want everyone to see passcode
+  // BW: Convert this into a private mode as we don't want everyone to see passcode
   Alice.only (() => {
     const weekPasscode = declassify(interact.providePasscode(weekNumber));
   });
@@ -102,33 +92,41 @@ export const main = Reach.App(() => {
 
   // Creator verifies if the passcode is authentic and corresponds to the week
   // Note: x[y] notation is only valid if x is an array (not a tuple)
-  const outcome = (weekPasscode == PASSCODE[weekNumber]) ? 1 : 0;
+  const weekOutcome  = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
 
-  // BW: Convert outcome into 3 conditions (or two different variables)
-  /*
-  outcome = (Condition1) ? x :
-  (Condition2) ? y :
-                              z
-  */
+  // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
+  if ( weekOutcome == true ) {
+
+    commit();
+
+    Alice.pay(assessmentFee);
+    transfer(assessmentFee).to(Creator);
+
+    commit();
+
+    // 1 NFT is issued to Alice (after moved to smart contract)
+    const amt = 1;
+
+    // BW: Why do I need so many brackets?
+    Creator.pay([[amt, nftId]]);
+    transfer([[amt, nftId]]).to(Alice);
+
+  }
 
   commit();
 
-  // BW: Condition loop needs to be added to retrun the money to Alice
-  //     and not issuing NFT etc
-
-  // Alice pays the assessment fee to the Creator
-  Alice.pay(assessmentFee);
-
-  transfer(assessmentFee).to(Creator);
-
-  // NFT is issued to Alice
-  transfer(amt, nftId).to(Alice);
-
-  commit();
-
-  // Display the final outcome
+  // Display the outcome for the week
   each([Creator, Alice], () => {
-    interact.seeOutcome(outcome);
+    interact.seeWeekOutcome(weekOutcome);
+  });
+
+  // Creator assesses the overall outcome
+  // BW: Currently set weekNumber >2 to trigger results
+  const overallOutcome = (weekNumber > 2) ? true : false;
+
+  // Display the overall outcome
+  each([Creator, Alice], () => {
+    interact.seeOverallOutcome(overallOutcome);
   });
 
 });

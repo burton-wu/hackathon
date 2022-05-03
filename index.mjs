@@ -17,24 +17,30 @@ console.log(`Store the starting balances for both Creator and Alice`);
 const beforeCreator = await getBalance(accCreator);
 const beforeAlice = await getBalance(accAlice);
 
-// Creator starts the contract since it publishes first
+// Note: Creator starts the contract since it publishes first
+// BW: This may need to change as we change the timing of NFT being created
+console.log(`Initiate the smart contract`);
 const ctcCreator = accCreator.contract(backend);
 const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 
 // Create an NFT
+// Note: SK1 is just a label, reference the NFT via the ID
 // BW: Exapnd to multiple NFTs
 // BW: NFT vs POAR? Will circle back to this later
 console.log(`Creator creates an NFT`);
 const theNFT = await stdlib.launchToken(accCreator, "SK1", "NFT", { supply: 1 });
 const nftId = theNFT.id;
-const minBid = stdlib.parseCurrency(0);
 const lenInBlocks = 10;
-const params = { nftId, minBid, lenInBlocks };
+const params = { nftId, lenInBlocks };
 
-const WEEK = ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'];
+console.log(`Store the starting NFT balances for both Creator and Alice`);
+const [, beforeNFTCreator ] = await stdlib.balancesOf(accCreator, [null, nftId]);
+const [, beforeNFTAlice ] = await stdlib.balancesOf(accAlice, [null, nftId]);
 
-// BW: Might be easier to sepeate out the outcome into Week vs Overall
-const OUTCOME = ['FRAUD', 'CERT', 'OVERALL'];
+console.log(`Creator launchs ${beforeNFTCreator} NFT of ${nftId}`);
+console.log(`Alice has ${beforeNFTAlice} NFT of ${nftId}`);
+
+const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
 
 const Player = (Who) => ({
 
@@ -44,8 +50,12 @@ const Player = (Who) => ({
     return week;
   },
 
-  seeOutcome: (outcome) => {
-    console.log(`${Who} saw outcome ${OUTCOME[outcome]}`);
+  seeWeekOutcome: (weekOutcome) => {
+    console.log(`${Who} saw the weekly outcome ${weekOutcome}`);
+  },
+
+  seeOverallOutcome: (overallOutcome) => {
+    console.log(`${Who} saw the overall outcome ${overallOutcome}`);
   },
 
 });
@@ -53,32 +63,41 @@ const Player = (Who) => ({
 await Promise.all([
 
   ctcCreator.p.Creator({
+
     ...Player('Creator'),
+
     createNFT: () => {
       console.log(`Creator sets parameters of the NFT:`, params);
       return params;
     },
+
     setFee: () => {
       const fee = stdlib.parseCurrency(5);
       console.log(`Creator sets the assessment fee of ${fmt(fee)}.`);
       return fee;
     },
+
     requestPasscode: (week) => {
       console.log(`Creator seeks the passcode for Week ${WEEK[week]}.`);
     },
+
   }),
 
   ctcAlice.p.Alice({
+
     ...Player('Alice'),
+
     acceptFee: (amt) => {
       console.log(`Alice accepts the assessment fee of ${fmt(amt)}.`);
     },
+
     providePasscode: (week) => {
-      // BW: last random number allows the outcome to be FRAUD
-      const passcode = (Math.floor(week)+1)*10+Math.floor(Math.random()*2);
+      // The last random number allows the outcome to be false
+      const passcode = (Math.floor(week)+1)*1000+Math.floor(Math.random()*2);
       console.log(`Alice provides passcode ${passcode} for Week ${WEEK[week]}.`);
       return passcode;
     },
+
   }),
 
 ]);
@@ -88,3 +107,9 @@ const afterAlice = await getBalance(accAlice);
 
 console.log(`Creator went from ${beforeCreator} to ${afterCreator}.`);
 console.log(`Alice went from ${beforeAlice} to ${afterAlice}.`);
+
+const [, afterNFTCreator ] = await stdlib.balancesOf(accCreator, [null, nftId]);
+const [, afterNFTAlice ] = await stdlib.balancesOf(accAlice, [null, nftId]);
+
+console.log(`Creator went from ${beforeNFTCreator} to ${afterNFTCreator} NFTs.`);
+console.log(`Alice went from ${beforeNFTAlice} to ${afterNFTAlice} NFTs.`);

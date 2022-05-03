@@ -82,6 +82,8 @@ console.log(`Alice has ${beforeNFTAlice6} NFT of ${nftId6} (#6)`);
 console.log(`Alice has ${beforeNFTAlice7} NFT of ${nftId7} (#7)`);
 
 const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
+
+// BW: Remember which week's NFT has been issued etc
 //const OUTCOME = array(Bool, [false, false, false, false, false, false]);
 
 const Player = (Who) => ({
@@ -108,7 +110,7 @@ await Promise.all([
 
     ...Player('Creator'),
 
-    createNFT: () => {
+    createNFTs: () => {
       console.log(`Creator sets parameters of the NFT:`, params);
       return params;
     },
@@ -174,10 +176,10 @@ console.log(`Creator went from ${beforeNFTCreator5} to ${afterNFTCreator5} NFT o
 console.log(`Creator went from ${beforeNFTCreator6} to ${afterNFTCreator6} NFT of ${nftId6} (#6)`);
 console.log(`Creator went from ${beforeNFTCreator7} to ${afterNFTCreator7} NFT of ${nftId7} (#7)`);
 
-console.log(`Creator went from ${beforeNFTAlice1} to ${afterNFTAlice1} NFT of ${nftId1} (#1)`);
-console.log(`Creator went from ${beforeNFTAlice2} to ${afterNFTAlice2} NFT of ${nftId2} (#2)`);
-console.log(`Creator went from ${beforeNFTAlice3} to ${afterNFTAlice3} NFT of ${nftId3} (#3)`);
-console.log(`Creator went from ${beforeNFTAlice4} to ${afterNFTAlice4} NFT of ${nftId4} (#4)`);
-console.log(`Creator went from ${beforeNFTAlice5} to ${afterNFTAlice5} NFT of ${nftId5} (#5)`);
-console.log(`Creator went from ${beforeNFTAlice6} to ${afterNFTAlice6} NFT of ${nftId6} (#6)`);
-console.log(`Creator went from ${beforeNFTAlice7} to ${afterNFTAlice7} NFT of ${nftId7} (#7)`);
+console.log(`Alice went from ${beforeNFTAlice1} to ${afterNFTAlice1} NFT of ${nftId1} (#1)`);
+console.log(`Alice went from ${beforeNFTAlice2} to ${afterNFTAlice2} NFT of ${nftId2} (#2)`);
+console.log(`Alice went from ${beforeNFTAlice3} to ${afterNFTAlice3} NFT of ${nftId3} (#3)`);
+console.log(`Alice went from ${beforeNFTAlice4} to ${afterNFTAlice4} NFT of ${nftId4} (#4)`);
+console.log(`Alice went from ${beforeNFTAlice5} to ${afterNFTAlice5} NFT of ${nftId5} (#5)`);
+console.log(`Alice went from ${beforeNFTAlice6} to ${afterNFTAlice6} NFT of ${nftId6} (#6)`);
+console.log(`Alice went from ${beforeNFTAlice7} to ${afterNFTAlice7} NFT of ${nftId7} (#7)`);

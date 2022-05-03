@@ -6,6 +6,9 @@ const PASSCODE = array(UInt, [1000, 2000, 3000, 4000, 5000, 6000]);
 
 // BW: Need to create a map for the NFTs
 
+// BW: Remember which week's NFT has been issued etc
+//const OUTCOME = array(Bool, [false, false, false, false, false, false]);
+
 const Player = {
   getWeek: Fun([], UInt),
   seeWeekOutcome: Fun([Bool], Null),
@@ -16,7 +19,7 @@ export const main = Reach.App(() => {
 
   const Creator = Participant('Creator', {
     ...Player,
-    createNFT: Fun([], Object({
+    createNFTs: Fun([], Object({
       nftId1: Token,
       nftId2: Token,
       nftId3: Token,
@@ -37,10 +40,13 @@ export const main = Reach.App(() => {
 
   init();
 
+  // 1 NFT is issued
+  const amt = 1;
+
   // Creator creates the NFT and publishes the parameters
   Creator.only(() => {
 
-    const {nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7} = declassify(interact.createNFT());
+    const {nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7} = declassify(interact.createNFTs());
     
     check(nftId1 != nftId2,"Invalid tokens.");
     check(nftId1 != nftId3,"Invalid tokens.");
@@ -100,7 +106,7 @@ export const main = Reach.App(() => {
 
   check(nftId6 != nftId7,"Invalid tokens.");
 
-   commit();
+  commit();
 
   // BW: Incorporate the while loop and put into parallelReduce where appropriate
   // BW: Implement delays
@@ -155,7 +161,7 @@ export const main = Reach.App(() => {
   // Creator verifies if the passcode is authentic and corresponds to the week
   // Note: x[y] notation is only valid if x is an array (not a tuple)
   const weekOutcome  = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
-
+ 
   // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
   if ( weekOutcome == true ) {
 
@@ -164,14 +170,33 @@ export const main = Reach.App(() => {
     Alice.pay(assessmentFee);
     transfer(assessmentFee).to(Creator);
 
-    commit();
 
-    // 1 NFT is issued to Alice (after moved to smart contract)
-    const amt = 1;
-
-    // BW: Why do I need so many brackets?
-    Creator.pay([[amt, nftId1]]);
-    transfer([[amt, nftId1]]).to(Alice);
+    if ( weekNumber == 0 ) {
+      commit();
+      // BW: Why do I need so many brackets?
+      Creator.pay([[amt, nftId1]]);
+      transfer([[amt, nftId1]]).to(Alice);
+    } else if ( weekNumber == 1 ) {
+      commit();
+      Creator.pay([[amt, nftId2]]);
+      transfer([[amt, nftId2]]).to(Alice);
+    } else if ( weekNumber == 2 ) {
+      commit();
+      Creator.pay([[amt, nftId3]]);
+      transfer([[amt, nftId3]]).to(Alice);
+    } else if ( weekNumber == 3 ) {
+      commit();
+      Creator.pay([[amt, nftId4]]);
+      transfer([[amt, nftId4]]).to(Alice);
+    } else if ( weekNumber == 4 ) {
+      commit();
+      Creator.pay([[amt, nftId5]]);
+      transfer([[amt, nftId5]]).to(Alice);
+    } else if ( weekNumber == 5 ) {
+      commit();
+      Creator.pay([[amt, nftId6]]);
+      transfer([[amt, nftId6]]).to(Alice);
+    }
 
   }
 
@@ -182,13 +207,20 @@ export const main = Reach.App(() => {
     interact.seeWeekOutcome(weekOutcome);
   });
 
+  /*
   // Creator assesses the overall outcome
   // BW: Currently set weekNumber >2 to trigger results
   const overallOutcome = (weekNumber > 2) ? true : false;
+
+  if ( overallOutcome == true ) {
+    Creator.pay([[amt, nftId7]]);
+    transfer([[amt, nftId7]]).to(Alice);
+  }
 
   // Display the overall outcome
   each([Creator, Alice], () => {
     interact.seeOverallOutcome(overallOutcome);
   });
+  */
 
 });

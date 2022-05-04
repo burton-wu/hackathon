@@ -200,27 +200,27 @@ export const main = Reach.App(() => {
 
   }
 
-  commit();
-
   // Display the outcome for the week
   each([Creator, Alice], () => {
     interact.seeWeekOutcome(weekOutcome);
   });
 
-  /*
   // Creator assesses the overall outcome
-  // BW: Currently set weekNumber >2 to trigger results
+  // BW: Currently set weekNumber >2 to trigger the result
   const overallOutcome = (weekNumber > 2) ? true : false;
 
   if ( overallOutcome == true ) {
+    commit();
     Creator.pay([[amt, nftId7]]);
     transfer([[amt, nftId7]]).to(Alice);
+    
   }
+
+  commit();
 
   // Display the overall outcome
   each([Creator, Alice], () => {
     interact.seeOverallOutcome(overallOutcome);
   });
-  */
 
 });

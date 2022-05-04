@@ -83,9 +83,6 @@ console.log(`Alice has ${beforeNFTAlice7} NFT of ${nftId7} (#7)`);
 
 const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
 
-// BW: Remember which week's NFT has been issued etc
-//const OUTCOME = array(Bool, [false, false, false, false, false, false]);
-
 const Player = (Who) => ({
 
   getWeek: () => {

@@ -4,14 +4,9 @@
 // BW: Consider turn this into an array of strings
 const PASSCODE = array(UInt, [1000, 2000, 3000, 4000, 5000, 6000]);
 
-// BW: Need to create a map for the NFTs
-
-// BW: Remember which week's NFT has been issued etc
-//const OUTCOME = array(Bool, [false, false, false, false, false, false]);
-
 const Player = {
-  getWeek: Fun([], UInt),
   seeWeekOutcome: Fun([Bool], Null),
+  seeWeekOutcomeArray: Fun([], Array(Bool,6)),
   seeOverallOutcome: Fun([Bool], Null),
 };
 
@@ -28,116 +23,65 @@ export const main = Reach.App(() => {
       nftId6: Token,
       nftId7: Token,
     })),
+    // BW: createNFTsArray (in draft) aims to improve createNFTs
     //createNFTsArray: Fun([], Array(Token,7)),
     setFee: Fun([], UInt),
     requestPasscode: Fun([UInt], Null),
-    weekOutcomeArray: Fun([UInt,Bool], Null),
+    updateWeekOutcomeArray: Fun([UInt,Bool], Null),
+    //seeWeekOutcomeArray: Fun([UInt,Bool], Array(Bool,6)),
   });
 
   const Alice = Participant('Alice', {
     ...Player,
+    provideWeek: Fun([], UInt),
     acceptFee: Fun([UInt], Null),
     providePasscode: Fun([UInt], UInt),
   });
 
   init();
 
-  // 1 NFT is issued
-  const amt = 1;
+  // Only 1 NFT will be issued eaech time
+  const amtNFT = 1;
 
-  // Creator creates the NFT and publishes the parameters
+  // Creator creates 7 NFTs and publishes the parameters
+  // Note: declassify can only occure with .only()
+  // Note: check's (inside .only() and after publish) are required to make sure NFTs are distinct
+  //       That is, make sure the data is valid on both the local computer and for smart contract
   Creator.only(() => {
 
     const {nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7} = declassify(interact.createNFTs());
-    
+
     check(distinct(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7)==true,"Invalid tokens.");
 
-/*    check(nftId1 != nftId2,"Invalid tokens.");
-    check(nftId1 != nftId3,"Invalid tokens.");
-    check(nftId1 != nftId4,"Invalid tokens.");
-    check(nftId1 != nftId5,"Invalid tokens.");
-    check(nftId1 != nftId6,"Invalid tokens.");
-    check(nftId1 != nftId7,"Invalid tokens.");
-  
-    check(nftId2 != nftId3,"Invalid tokens.");
-    check(nftId2 != nftId4,"Invalid tokens.");
-    check(nftId2 != nftId5,"Invalid tokens.");
-    check(nftId2 != nftId6,"Invalid tokens.");
-    check(nftId2 != nftId7,"Invalid tokens.");
-  
-    check(nftId3 != nftId4,"Invalid tokens.");
-    check(nftId3 != nftId5,"Invalid tokens.");
-    check(nftId3 != nftId6,"Invalid tokens.");
-    check(nftId3 != nftId7,"Invalid tokens.");
-  
-    check(nftId4 != nftId5,"Invalid tokens.");
-    check(nftId4 != nftId6,"Invalid tokens.");
-    check(nftId4 != nftId7,"Invalid tokens.");
-  
-    check(nftId5 != nftId6,"Invalid tokens.");
-    check(nftId5 != nftId7,"Invalid tokens.");
-  
-    check(nftId6 != nftId7,"Invalid tokens."); */
-
-    //const tokenArray = declassify(interact.createNFTsArray());
+    //const nftIdArray = declassify(interact.createNFTsArray());
 
   });
 
-  Creator.publish(nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7);
+  Creator.publish(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7);
 
   check(distinct(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7)==true,"Invalid tokens.");
 
-  /*check(nftId1 != nftId2,"Invalid tokens.");
-  check(nftId1 != nftId3,"Invalid tokens.");
-  check(nftId1 != nftId4,"Invalid tokens.");
-  check(nftId1 != nftId5,"Invalid tokens.");
-  check(nftId1 != nftId6,"Invalid tokens.");
-  check(nftId1 != nftId7,"Invalid tokens.");
-
-  check(nftId2 != nftId3,"Invalid tokens.");
-  check(nftId2 != nftId4,"Invalid tokens.");
-  check(nftId2 != nftId5,"Invalid tokens.");
-  check(nftId2 != nftId6,"Invalid tokens.");
-  check(nftId2 != nftId7,"Invalid tokens.");
-
-  check(nftId3 != nftId4,"Invalid tokens.");
-  check(nftId3 != nftId5,"Invalid tokens.");
-  check(nftId3 != nftId6,"Invalid tokens.");
-  check(nftId3 != nftId7,"Invalid tokens.");
-
-  check(nftId4 != nftId5,"Invalid tokens.");
-  check(nftId4 != nftId6,"Invalid tokens.");
-  check(nftId4 != nftId7,"Invalid tokens.");
-
-  check(nftId5 != nftId6,"Invalid tokens.");
-  check(nftId5 != nftId7,"Invalid tokens.");
-
-  check(nftId6 != nftId7,"Invalid tokens.");*/
-
   commit();
 
-  //Creator.publish(tokenArray);
+  //Creator.publish(nftIdArray);
+
   //commit();
 
-  // BW: Incorporate the while loop and put into parallelReduce where appropriate
-  // BW: Implement delays
-  // BW: Add "Claire" into the equation so we can see what the public sees
+  // BW: Incorporate the while loop and put into parallelReduce if appropriate
+  // BW: Implement delays in the future
+  // BW: Add "Claire" into the equation so we can see what the public sees in the future
 
   // Alice requests assessment for Week X
-  // Note: declassify can only occure with .only()
   Alice.only(() => {
 
-    const weekNumber = declassify(interact.getWeek());
+    const weekNumber = declassify(interact.provideWeek());
 
-    // Check the input week number is valid on Alice's computer
-    // BW: will try to make "6" being dynamic
     check(weekNumber<6,"Invalid week has been selected.");
 
   });
 
   Alice.publish(weekNumber);
 
-  // Check the input week number is valid for the smart contract
   check(weekNumber<6,"Invalid week has been selected.");
 
   commit();
@@ -168,15 +112,30 @@ export const main = Reach.App(() => {
   });
 
   Alice.publish(weekPasscode);
+  commit();
 
   // Creator verifies if the passcode is authentic and corresponds to the week
   // Note: x[y] notation is only valid if x is an array (not a tuple)
+  // Note: Syntex for multiple scenarios -- outcome = (Condition1) ? x : (Condition2) ? y : z
+  // Note: Only account balance and declared loop variables can be changed in rsh
   const weekOutcome = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
 
-  Creator.only(() => {
-    interact.weekOutcomeArray(weekNumber,weekOutcome);
+  // Display the outcome for the week
+  // BW: This is not needed and will be removed later
+  each([Creator, Alice], () => {
+
+    interact.seeWeekOutcome(weekOutcome);
+
   });
- 
+
+  Creator.only(() => {
+
+    const weekOutcomeArray1 = declassify(interact.seeWeekOutcomeArray());
+
+  });
+
+  Creator.publish(weekOutcomeArray1);
+
   // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
   if ( weekOutcome == true ) {
 
@@ -185,62 +144,87 @@ export const main = Reach.App(() => {
     Alice.pay(assessmentFee);
     transfer(assessmentFee).to(Creator);
 
-    if ( weekNumber == 0 ) {
-      commit();
-      Creator.pay([[amt, nftId1]]);
-      transfer([[amt, nftId1]]).to(Alice);
-    } else if ( weekNumber == 1 ) {
-      commit();
-      Creator.pay([[amt, nftId2]]);
-      transfer([[amt, nftId2]]).to(Alice);
-    } else if ( weekNumber == 2 ) {
-      commit();
-      Creator.pay([[amt, nftId3]]);
-      transfer([[amt, nftId3]]).to(Alice);
-    } else if ( weekNumber == 3 ) {
-      commit();
-      Creator.pay([[amt, nftId4]]);
-      transfer([[amt, nftId4]]).to(Alice);
-    } else if ( weekNumber == 4 ) {
-      commit();
-      Creator.pay([[amt, nftId5]]);
-      transfer([[amt, nftId5]]).to(Alice);
-    } else if ( weekNumber == 5 ) {
-      commit();
-      Creator.pay([[amt, nftId6]]);
-      transfer([[amt, nftId6]]).to(Alice);
+    // However no new NFT will be issued if it has been issued before
+    if ( weekOutcomeArray1[weekNumber] == false ) {
+
+      if ( weekNumber == 0) {
+        commit();
+        Creator.pay([[amtNFT, nftId1]]);
+        transfer([[amtNFT, nftId1]]).to(Alice);
+      } else if ( weekNumber == 1 ) {
+        commit();
+        Creator.pay([[amtNFT, nftId2]]);
+        transfer([[amtNFT, nftId2]]).to(Alice);
+      } else if ( weekNumber == 2 ) {
+        commit();
+        Creator.pay([[amtNFT, nftId3]]);
+        transfer([[amtNFT, nftId3]]).to(Alice);
+      } else if ( weekNumber == 3 ) {
+        commit();
+        Creator.pay([[amtNFT, nftId4]]);
+        transfer([[amtNFT, nftId4]]).to(Alice);
+      } else if ( weekNumber == 4 ) {
+        commit();
+        Creator.pay([[amtNFT, nftId5]]);
+        transfer([[amtNFT, nftId5]]).to(Alice);
+      } else if ( weekNumber == 5 ) {
+        commit();
+        Creator.pay([[amtNFT, nftId6]]);
+        transfer([[amtNFT, nftId6]]).to(Alice);
+      }
+
     }
 /*
     if ( weekNumber < 6 ) {
       commit();
-      Creator.pay([[amt, tokenArray[weekNumber]]]);
-      transfer([[amt, tokenArray[weekNumber]]]).to(Alice);
+      Creator.pay([[amtNFT, nftIdArray[weekNumber]]]);
+      transfer([[amtNFT, nftIdArray[weekNumber]]]).to(Alice);
     }
 */
+
   }
 
-  // Display the outcome for the week
-  each([Creator, Alice], () => {
-    interact.seeWeekOutcome(weekOutcome);
+  commit();
+
+  // Update and publish the WeekOutcomeArray
+  // BW: Should move up to the if block above
+  Creator.only(() => {
+
+    interact.updateWeekOutcomeArray(weekNumber,weekOutcome);
+
+    const weekOutcomeArray2 = declassify(interact.seeWeekOutcomeArray());
+    
   });
 
+  Creator.publish(weekOutcomeArray2);
+
   // Creator assesses the overall outcome
-  // BW: Currently set weekNumber >2 to trigger the result
-  const overallOutcome = (weekNumber > 2) ? true : false;
+  const overallOutcome = ( weekOutcomeArray2[0] == true &&
+    weekOutcomeArray2[1] == true && weekOutcomeArray2[2] == true &&
+    weekOutcomeArray2[3] == true && weekOutcomeArray2[4] == true &&
+    weekOutcomeArray2[5] == true ) ? true : false;
 
   if ( overallOutcome == true ) {
+
     commit();
-    Creator.pay([[amt, nftId7]]);
-    transfer([[amt, nftId7]]).to(Alice);
-    //Creator.pay([[amt, tokenArray[6]]]);
-    //transfer([[amt, tokenArray[6]]]).to(Alice);
+
+    Creator.pay([[amtNFT, nftId7]]);
+
+    transfer([[amtNFT, nftId7]]).to(Alice);
+
+    //Creator.pay([[amtNFT, nftIdArray[6]]]);
+
+    //transfer([[amtNFT, nftIdArray[6]]]).to(Alice);
+
   }
 
   commit();
 
   // Display the overall outcome
   each([Creator, Alice], () => {
+
     interact.seeOverallOutcome(overallOutcome);
+
   });
 
 });

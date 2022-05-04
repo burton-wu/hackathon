@@ -19,15 +19,18 @@ const beforeAlice = await getBalance(accAlice);
 
 // Note: Creator starts the contract since it publishes first
 // BW: This may need to change as we change the timing of NFT being created
-console.log(`Initiate the smart contract`);
+console.log(`***** Initiate the smart contract *****`);
 const ctcCreator = accCreator.contract(backend);
 const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 
-let weekOutcomeArray = [false, false, false, false, false, false];
+const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
+
+// Assume Alice has not completed any Weeks
+let weekOutcomeArray = [true, false, true, true, true, true];
 
 // Create 7 NFTs for each of the 6 weeks plus an overall
 // Note: SK1 is just a label, reference the NFT via the ID
-// BW: NFT vs POAR? Will circle back to this later
+// Note: NFT and POAR is actually different (use NFT for now)
 // BW: How best to convert this to an array?
 console.log(`Creator creates 7 NFTs`);
 
@@ -48,7 +51,9 @@ const nftId6 = theNFT6.id;
 const nftId7 = theNFT7.id;
 
 const params = { nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7 };
-const params2 = [ nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7 ];
+
+//const params2 = [ nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7 ];
+//console.log(`...params2[3] = ${params2[3]}...`);
 
 console.log(`Store the starting NFT balances for both Creator and Alice`);
 
@@ -68,8 +73,6 @@ const [, beforeNFTAlice5 ] = await stdlib.balancesOf(accAlice, [null, nftId5]);
 const [, beforeNFTAlice6 ] = await stdlib.balancesOf(accAlice, [null, nftId6]);
 const [, beforeNFTAlice7 ] = await stdlib.balancesOf(accAlice, [null, nftId7]);
 
-console.log(`...params2[3] = ${params2[3]}...`);
-
 console.log(`Creator launchs ${beforeNFTCreator1} NFT of ${nftId1} (#1)`);
 console.log(`Creator launchs ${beforeNFTCreator2} NFT of ${nftId2} (#2)`);
 console.log(`Creator launchs ${beforeNFTCreator3} NFT of ${nftId3} (#3)`);
@@ -86,18 +89,15 @@ console.log(`Alice has ${beforeNFTAlice5} NFT of ${nftId5} (#5)`);
 console.log(`Alice has ${beforeNFTAlice6} NFT of ${nftId6} (#6)`);
 console.log(`Alice has ${beforeNFTAlice7} NFT of ${nftId7} (#7)`);
 
-const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
-
 const Player = (Who) => ({
-
-  getWeek: () => {
-    const week = Math.floor(Math.random() * 6);
-    console.log(`${Who} asked for Week ${WEEK[week]}`);
-    return week;
-  },
 
   seeWeekOutcome: (weekOutcome) => {
     console.log(`${Who} saw the weekly outcome ${weekOutcome}`);
+  },
+
+  seeWeekOutcomeArray: () => {
+    console.log(`Week outcome arrary is ${weekOutcomeArray}`);
+    return weekOutcomeArray;
   },
 
   seeOverallOutcome: (overallOutcome) => {
@@ -116,51 +116,70 @@ await Promise.all([
       console.log(`Creator sets parameters of the NFTs:`, params);
       return params;
     },
-
+/*
     createNFTsArray: () => {
       console.log(`Creator sets parameters of the NFT Array:`, params2);
       return params2;
     },
-
+*/
     setFee: () => {
-      const fee = stdlib.parseCurrency(5);
-      console.log(`Creator sets the assessment fee of ${fmt(fee)} ${stdlib.standardUnit}`);
-      return fee;
+      const assessmentFee = stdlib.parseCurrency(5);
+      console.log(`Creator sets the assessment fee of ${fmt(assessmentFee)} ${stdlib.standardUnit}`);
+      return assessmentFee;
     },
 
-    requestPasscode: (week) => {
-      console.log(`Creator seeks the passcode for Week ${WEEK[week]}`);
+    requestPasscode: (weekNumber) => {
+      console.log(`Creator seeks the passcode for Week ${WEEK[weekNumber]}`);
     },
 
-    weekOutcomeArray: (week,weekOutcome) => {
+    updateWeekOutcomeArray: (weekNumber,weekOutcome) => {
+      if ( weekOutcome == true && weekOutcomeArray[weekNumber] == false ) {
+        weekOutcomeArray[weekNumber] = weekOutcome;
+        console.log(`Update Week ${Math.floor(weekNumber)+1} to ${weekOutcome}`);
+      } else {
+        console.log(`No upudates have been made to the Week Outcome Array`);
+      }      
+    },
+  
+/*    
+    seeWeekOutcomeArray: (weekNumber,weekOutcome) => {
       if ( weekOutcome == true ) {
-          weekOutcomeArray[week] = weekOutcome;
+          weekOutcomeArray[weekNumber] = weekOutcome;
       }
-      console.log(`...${week} is ${weekOutcome}`);
-      console.log(`Week Outcome Arrary ${week} is ${weekOutcomeArray[week]}`);
+      console.log(`...${weekNumber} is ${weekOutcome}`);
+      console.log(`Week Outcome Arrary ${weekNumber} is ${weekOutcomeArray[weekNumber]}`);
       console.log(`Week Outcome Arrary ${weekOutcomeArray}`);
     },
-
+*/
   }),
 
   ctcAlice.p.Alice({
 
     ...Player('Alice'),
 
-    acceptFee: (amt) => {
-      console.log(`Alice accepts the assessment fee of ${fmt(amt)} ${stdlib.standardUnit}`);
+    provideWeek: () => {
+      const weekNumber = Math.floor(Math.random() * 6);
+      console.log(`Alice asks for Week ${WEEK[weekNumber]}`);
+      return weekNumber;
+    },
+  
+    acceptFee: (assessmentFee) => {
+      console.log(`Alice accepts the assessment fee of ${fmt(assessmentFee)} ${stdlib.standardUnit}`);
     },
 
-    providePasscode: (week) => {
+    providePasscode: (weekNumber) => {
       // The last random number allows the outcome to be false
-      const passcode = (Math.floor(week)+1)*1000+Math.floor(Math.random()*2);
-      console.log(`Alice provides passcode ${passcode} for Week ${WEEK[week]}`);
-      return passcode;
+      //const weekPasscode = (Math.floor(weekNumber)+1)*1000+Math.floor(Math.random()*2);
+      const weekPasscode = (Math.floor(weekNumber)+1)*1000;
+      console.log(`Alice provides passcode ${weekPasscode} for Week ${WEEK[weekNumber]}`);
+      return weekPasscode;
     },
 
   }),
 
 ]);
+
+console.log(`***** Finalise the smart contract *****`);
 
 const afterCreator = await getBalance(accCreator);
 const afterAlice = await getBalance(accAlice);

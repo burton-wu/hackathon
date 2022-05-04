@@ -23,12 +23,11 @@ export const main = Reach.App(() => {
       nftId6: Token,
       nftId7: Token,
     })),
-    // BW: createNFTsArray (in draft) aims to improve createNFTs
+    // BW: createNFTsArray (in draft) aims to improve createNFTs via an array
     //createNFTsArray: Fun([], Array(Token,7)),
     setFee: Fun([], UInt),
     requestPasscode: Fun([UInt], Null),
     updateWeekOutcomeArray: Fun([UInt,Bool], Null),
-    //seeWeekOutcomeArray: Fun([UInt,Bool], Array(Bool,6)),
   });
 
   const Alice = Participant('Alice', {
@@ -61,170 +60,197 @@ export const main = Reach.App(() => {
 
   check(distinct(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7)==true,"Invalid tokens.");
 
-  commit();
+  
 
   //Creator.publish(nftIdArray);
 
   //commit();
+/*
+  var RUNNING = true;
 
-  // BW: Incorporate the while loop and put into parallelReduce if appropriate
-  // BW: Implement delays in the future
-  // BW: Add "Claire" into the equation so we can see what the public sees in the future
+  // BW: Not sure how to write this
+  //invariant (weekNumber<6);
 
-  // Alice requests assessment for Week X
-  Alice.only(() => {
+  while ( RUNNING == true) {
+*/
+    commit();
 
-    const weekNumber = declassify(interact.provideWeek());
+    // BW: Incorporate the while loop and put into parallelReduce if appropriate
+    // BW: Implement delays in the future
+    // BW: Add "Claire" into the equation so we can see what the public sees in the future
+
+    // Alice requests assessment for Week X
+    Alice.only(() => {
+
+      const weekNumber = declassify(interact.provideWeek());
+
+      check(weekNumber<6,"Invalid week has been selected.");
+
+    });
+
+    Alice.publish(weekNumber);
 
     check(weekNumber<6,"Invalid week has been selected.");
 
-  });
+    commit();
 
-  Alice.publish(weekNumber);
+    // Creator determines the fee
+    Creator.only(() => {
 
-  check(weekNumber<6,"Invalid week has been selected.");
+      const assessmentFee = declassify(interact.setFee());
 
-  commit();
+    });
 
-  // Creator determines the fee
-  Creator.only(() => {
-    const assessmentFee = declassify(interact.setFee());
-  });
-
-  Creator.publish(assessmentFee);
-
-  commit();
-
-  // Alice accepts the assessment fee
-  Alice.only(() => {
-    interact.acceptFee(assessmentFee);
-  });
-
-  // Creator requests the passcode for the Week
-  Creator.only(() => {
-    interact.requestPasscode(weekNumber);
-  });
-
-  // Alice provides the passcode for the Week
-  // BW: Convert this into a private mode as we don't want everyone to see passcode
-  Alice.only (() => {
-    const weekPasscode = declassify(interact.providePasscode(weekNumber));
-  });
-
-  Alice.publish(weekPasscode);
-  commit();
-
-  // Creator verifies if the passcode is authentic and corresponds to the week
-  // Note: x[y] notation is only valid if x is an array (not a tuple)
-  // Note: Syntex for multiple scenarios -- outcome = (Condition1) ? x : (Condition2) ? y : z
-  // Note: Only account balance and declared loop variables can be changed in rsh
-  const weekOutcome = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
-
-  // Display the outcome for the week
-  // BW: This is not needed and will be removed later
-  each([Creator, Alice], () => {
-
-    interact.seeWeekOutcome(weekOutcome);
-
-  });
-
-  Creator.only(() => {
-
-    const weekOutcomeArray1 = declassify(interact.seeWeekOutcomeArray());
-
-  });
-
-  Creator.publish(weekOutcomeArray1);
-
-  // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
-  if ( weekOutcome == true ) {
+    Creator.publish(assessmentFee);
 
     commit();
 
-    Alice.pay(assessmentFee);
-    transfer(assessmentFee).to(Creator);
+    // Alice accepts the assessment fee
+    Alice.only(() => {
 
-    // However no new NFT will be issued if it has been issued before
-    if ( weekOutcomeArray1[weekNumber] == false ) {
+      interact.acceptFee(assessmentFee);
 
-      if ( weekNumber == 0) {
-        commit();
-        Creator.pay([[amtNFT, nftId1]]);
-        transfer([[amtNFT, nftId1]]).to(Alice);
-      } else if ( weekNumber == 1 ) {
-        commit();
-        Creator.pay([[amtNFT, nftId2]]);
-        transfer([[amtNFT, nftId2]]).to(Alice);
-      } else if ( weekNumber == 2 ) {
-        commit();
-        Creator.pay([[amtNFT, nftId3]]);
-        transfer([[amtNFT, nftId3]]).to(Alice);
-      } else if ( weekNumber == 3 ) {
-        commit();
-        Creator.pay([[amtNFT, nftId4]]);
-        transfer([[amtNFT, nftId4]]).to(Alice);
-      } else if ( weekNumber == 4 ) {
-        commit();
-        Creator.pay([[amtNFT, nftId5]]);
-        transfer([[amtNFT, nftId5]]).to(Alice);
-      } else if ( weekNumber == 5 ) {
-        commit();
-        Creator.pay([[amtNFT, nftId6]]);
-        transfer([[amtNFT, nftId6]]).to(Alice);
-      }
+    });
 
-    }
-/*
-    if ( weekNumber < 6 ) {
+    // Creator requests the passcode for the Week
+    Creator.only(() => {
+
+      interact.requestPasscode(weekNumber);
+
+    });
+
+    // Alice provides the passcode for the Week
+    // BW: Convert this into a private mode as we don't want everyone to see passcode
+    Alice.only (() => {
+
+      const weekPasscode = declassify(interact.providePasscode(weekNumber));
+
+    });
+
+    Alice.publish(weekPasscode);
+
+    commit();
+
+    // Creator verifies if the passcode is authentic and corresponds to the week
+    // Note: x[y] notation is only valid if x is an array (not a tuple)
+    // Note: Syntex for multiple scenarios -- outcome = (Condition1) ? x : (Condition2) ? y : z
+    // Note: Only account balance and declared loop variables can be changed in rsh
+    const weekOutcome = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
+
+    // Display the outcome for the week
+    // BW: This is not really needed and will be removed later
+    each([Creator, Alice], () => {
+
+      interact.seeWeekOutcome(weekOutcome);
+
+    });
+
+    Creator.only(() => {
+
+      const weekOutcomeArray1 = declassify(interact.seeWeekOutcomeArray());
+
+    });
+
+    Creator.publish(weekOutcomeArray1);
+
+    // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
+    if ( weekOutcome == true ) {
+
       commit();
-      Creator.pay([[amtNFT, nftIdArray[weekNumber]]]);
-      transfer([[amtNFT, nftIdArray[weekNumber]]]).to(Alice);
+
+      Alice.pay(assessmentFee);
+
+      transfer(assessmentFee).to(Creator);
+
+      // However no new NFT will be issued if it has been issued before
+      if ( weekOutcomeArray1[weekNumber] == false ) {
+
+        if ( weekNumber == 0) {
+          commit();
+          Creator.pay([[amtNFT, nftId1]]);
+          transfer([[amtNFT, nftId1]]).to(Alice);
+        } else if ( weekNumber == 1 ) {
+          commit();
+          Creator.pay([[amtNFT, nftId2]]);
+          transfer([[amtNFT, nftId2]]).to(Alice);
+        } else if ( weekNumber == 2 ) {
+          commit();
+          Creator.pay([[amtNFT, nftId3]]);
+          transfer([[amtNFT, nftId3]]).to(Alice);
+        } else if ( weekNumber == 3 ) {
+          commit();
+          Creator.pay([[amtNFT, nftId4]]);
+          transfer([[amtNFT, nftId4]]).to(Alice);
+        } else if ( weekNumber == 4 ) {
+          commit();
+          Creator.pay([[amtNFT, nftId5]]);
+          transfer([[amtNFT, nftId5]]).to(Alice);
+        } else if ( weekNumber == 5 ) {
+          commit();
+          Creator.pay([[amtNFT, nftId6]]);
+          transfer([[amtNFT, nftId6]]).to(Alice);
+        }
+
+      }
+  /*
+      if ( weekNumber < 6 ) {
+        commit();
+        Creator.pay([[amtNFT, nftIdArray[weekNumber]]]);
+        transfer([[amtNFT, nftIdArray[weekNumber]]]).to(Alice);
+      }
+  */
+
     }
-*/
-
-  }
-
-  commit();
-
-  // Update and publish the WeekOutcomeArray
-  // BW: Should move up to the if block above
-  Creator.only(() => {
-
-    interact.updateWeekOutcomeArray(weekNumber,weekOutcome);
-
-    const weekOutcomeArray2 = declassify(interact.seeWeekOutcomeArray());
-    
-  });
-
-  Creator.publish(weekOutcomeArray2);
-
-  // Creator assesses the overall outcome
-  const overallOutcome = ( weekOutcomeArray2[0] == true &&
-    weekOutcomeArray2[1] == true && weekOutcomeArray2[2] == true &&
-    weekOutcomeArray2[3] == true && weekOutcomeArray2[4] == true &&
-    weekOutcomeArray2[5] == true ) ? true : false;
-
-  if ( overallOutcome == true ) {
 
     commit();
 
-    Creator.pay([[amtNFT, nftId7]]);
+    // Update and publish the WeekOutcomeArray
+    // BW: Should move up to the if block above but does not change the outcome
+    Creator.only(() => {
 
-    transfer([[amtNFT, nftId7]]).to(Alice);
+      interact.updateWeekOutcomeArray(weekNumber,weekOutcome);
 
-    //Creator.pay([[amtNFT, nftIdArray[6]]]);
+      const weekOutcomeArray2 = declassify(interact.seeWeekOutcomeArray());
+      
+    });
 
-    //transfer([[amtNFT, nftIdArray[6]]]).to(Alice);
+    Creator.publish(weekOutcomeArray2);
 
-  }
+    // Creator assesses the overall outcome
+    const overallOutcome = ( weekOutcomeArray2[0] == true &&
+      weekOutcomeArray2[1] == true && weekOutcomeArray2[2] == true &&
+      weekOutcomeArray2[3] == true && weekOutcomeArray2[4] == true &&
+      weekOutcomeArray2[5] == true ) ? true : false;
 
-  commit();
+    // Display the overall outcome
+    each([Creator, Alice], () => {
 
-  // Display the overall outcome
-  each([Creator, Alice], () => {
+      interact.seeOverallOutcome(overallOutcome);
 
-    interact.seeOverallOutcome(overallOutcome);
+    });
 
-  });
+    // Creator issues the Overall NFT if all conditions have been met
+    if ( overallOutcome == true ) {
+
+      commit();
+
+      Creator.pay([[amtNFT, nftId7]]);
+
+      transfer([[amtNFT, nftId7]]).to(Alice);
+
+      //Creator.pay([[amtNFT, nftIdArray[6]]]);
+
+      //transfer([[amtNFT, nftIdArray[6]]]).to(Alice);
+
+    }
+
+    commit();
+/*
+    if ( overallOutcome == true ) {
+      RUNNING = false;
+    }
+    continue;
+  }  
+*/
 
 });

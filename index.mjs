@@ -26,7 +26,7 @@ const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 const WEEK = ['#1', '#2', '#3', '#4', '#5', '#6'];
 
 // Assume Alice has not completed any Weeks
-let weekOutcomeArray = [true, false, true, true, true, true];
+let weekOutcomeArray = [true, false, true, true, false, true];
 
 // Create 7 NFTs for each of the 6 weeks plus an overall
 // Note: SK1 is just a label, reference the NFT via the ID
@@ -140,17 +140,7 @@ await Promise.all([
         console.log(`No upudates have been made to the Week Outcome Array`);
       }      
     },
-  
-/*    
-    seeWeekOutcomeArray: (weekNumber,weekOutcome) => {
-      if ( weekOutcome == true ) {
-          weekOutcomeArray[weekNumber] = weekOutcome;
-      }
-      console.log(`...${weekNumber} is ${weekOutcome}`);
-      console.log(`Week Outcome Arrary ${weekNumber} is ${weekOutcomeArray[weekNumber]}`);
-      console.log(`Week Outcome Arrary ${weekOutcomeArray}`);
-    },
-*/
+
   }),
 
   ctcAlice.p.Alice({

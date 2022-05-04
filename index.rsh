@@ -28,8 +28,10 @@ export const main = Reach.App(() => {
       nftId6: Token,
       nftId7: Token,
     })),
+    //createNFTsArray: Fun([], Array(Token,7)),
     setFee: Fun([], UInt),
     requestPasscode: Fun([UInt], Null),
+    weekOutcomeArray: Fun([UInt,Bool], Null),
   });
 
   const Alice = Participant('Alice', {
@@ -46,9 +48,11 @@ export const main = Reach.App(() => {
   // Creator creates the NFT and publishes the parameters
   Creator.only(() => {
 
-    const {nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7} = declassify(interact.createNFTs());
+    const {nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7} = declassify(interact.createNFTs());
     
-    check(nftId1 != nftId2,"Invalid tokens.");
+    check(distinct(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7)==true,"Invalid tokens.");
+
+/*    check(nftId1 != nftId2,"Invalid tokens.");
     check(nftId1 != nftId3,"Invalid tokens.");
     check(nftId1 != nftId4,"Invalid tokens.");
     check(nftId1 != nftId5,"Invalid tokens.");
@@ -73,13 +77,17 @@ export const main = Reach.App(() => {
     check(nftId5 != nftId6,"Invalid tokens.");
     check(nftId5 != nftId7,"Invalid tokens.");
   
-    check(nftId6 != nftId7,"Invalid tokens.");
+    check(nftId6 != nftId7,"Invalid tokens."); */
+
+    //const tokenArray = declassify(interact.createNFTsArray());
 
   });
 
   Creator.publish(nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7);
 
-  check(nftId1 != nftId2,"Invalid tokens.");
+  check(distinct(nftId1,nftId2,nftId3,nftId4,nftId5,nftId6,nftId7)==true,"Invalid tokens.");
+
+  /*check(nftId1 != nftId2,"Invalid tokens.");
   check(nftId1 != nftId3,"Invalid tokens.");
   check(nftId1 != nftId4,"Invalid tokens.");
   check(nftId1 != nftId5,"Invalid tokens.");
@@ -104,9 +112,12 @@ export const main = Reach.App(() => {
   check(nftId5 != nftId6,"Invalid tokens.");
   check(nftId5 != nftId7,"Invalid tokens.");
 
-  check(nftId6 != nftId7,"Invalid tokens.");
+  check(nftId6 != nftId7,"Invalid tokens.");*/
 
   commit();
+
+  //Creator.publish(tokenArray);
+  //commit();
 
   // BW: Incorporate the while loop and put into parallelReduce where appropriate
   // BW: Implement delays
@@ -160,7 +171,11 @@ export const main = Reach.App(() => {
 
   // Creator verifies if the passcode is authentic and corresponds to the week
   // Note: x[y] notation is only valid if x is an array (not a tuple)
-  const weekOutcome  = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
+  const weekOutcome = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
+
+  Creator.only(() => {
+    interact.weekOutcomeArray(weekNumber,weekOutcome);
+  });
  
   // Alice pays the assessment fee to the Creator and get 1 NFT if weekOutcome is true
   if ( weekOutcome == true ) {
@@ -170,10 +185,8 @@ export const main = Reach.App(() => {
     Alice.pay(assessmentFee);
     transfer(assessmentFee).to(Creator);
 
-
     if ( weekNumber == 0 ) {
       commit();
-      // BW: Why do I need so many brackets?
       Creator.pay([[amt, nftId1]]);
       transfer([[amt, nftId1]]).to(Alice);
     } else if ( weekNumber == 1 ) {
@@ -197,7 +210,13 @@ export const main = Reach.App(() => {
       Creator.pay([[amt, nftId6]]);
       transfer([[amt, nftId6]]).to(Alice);
     }
-
+/*
+    if ( weekNumber < 6 ) {
+      commit();
+      Creator.pay([[amt, tokenArray[weekNumber]]]);
+      transfer([[amt, tokenArray[weekNumber]]]).to(Alice);
+    }
+*/
   }
 
   // Display the outcome for the week
@@ -213,7 +232,8 @@ export const main = Reach.App(() => {
     commit();
     Creator.pay([[amt, nftId7]]);
     transfer([[amt, nftId7]]).to(Alice);
-    
+    //Creator.pay([[amt, tokenArray[6]]]);
+    //transfer([[amt, tokenArray[6]]]).to(Alice);
   }
 
   commit();

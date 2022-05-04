@@ -23,11 +23,13 @@ console.log(`Initiate the smart contract`);
 const ctcCreator = accCreator.contract(backend);
 const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 
+let weekOutcomeArray = [false, false, false, false, false, false];
+
 // Create 7 NFTs for each of the 6 weeks plus an overall
 // Note: SK1 is just a label, reference the NFT via the ID
 // BW: NFT vs POAR? Will circle back to this later
 // BW: How best to convert this to an array?
-console.log(`Creator creates 7 NFT`);
+console.log(`Creator creates 7 NFTs`);
 
 const theNFT1 = await stdlib.launchToken(accCreator, "SK1", "NFT", { supply: 1 });
 const theNFT2 = await stdlib.launchToken(accCreator, "SK2", "NFT", { supply: 1 });
@@ -46,6 +48,7 @@ const nftId6 = theNFT6.id;
 const nftId7 = theNFT7.id;
 
 const params = { nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7 };
+const params2 = [ nftId1, nftId2, nftId3, nftId4, nftId5, nftId6, nftId7 ];
 
 console.log(`Store the starting NFT balances for both Creator and Alice`);
 
@@ -64,6 +67,8 @@ const [, beforeNFTAlice4 ] = await stdlib.balancesOf(accAlice, [null, nftId4]);
 const [, beforeNFTAlice5 ] = await stdlib.balancesOf(accAlice, [null, nftId5]);
 const [, beforeNFTAlice6 ] = await stdlib.balancesOf(accAlice, [null, nftId6]);
 const [, beforeNFTAlice7 ] = await stdlib.balancesOf(accAlice, [null, nftId7]);
+
+console.log(`...params2[3] = ${params2[3]}...`);
 
 console.log(`Creator launchs ${beforeNFTCreator1} NFT of ${nftId1} (#1)`);
 console.log(`Creator launchs ${beforeNFTCreator2} NFT of ${nftId2} (#2)`);
@@ -108,8 +113,13 @@ await Promise.all([
     ...Player('Creator'),
 
     createNFTs: () => {
-      console.log(`Creator sets parameters of the NFT:`, params);
+      console.log(`Creator sets parameters of the NFTs:`, params);
       return params;
+    },
+
+    createNFTsArray: () => {
+      console.log(`Creator sets parameters of the NFT Array:`, params2);
+      return params2;
     },
 
     setFee: () => {
@@ -120,6 +130,15 @@ await Promise.all([
 
     requestPasscode: (week) => {
       console.log(`Creator seeks the passcode for Week ${WEEK[week]}`);
+    },
+
+    weekOutcomeArray: (week,weekOutcome) => {
+      if ( weekOutcome == true ) {
+          weekOutcomeArray[week] = weekOutcome;
+      }
+      console.log(`...${week} is ${weekOutcome}`);
+      console.log(`Week Outcome Arrary ${week} is ${weekOutcomeArray[week]}`);
+      console.log(`Week Outcome Arrary ${weekOutcomeArray}`);
     },
 
   }),

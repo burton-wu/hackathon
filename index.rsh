@@ -57,12 +57,12 @@ export const main = Reach.App(() => {
 
   commit();
   
-  // Display Alice's initial weekly status 
-  Creator.only(() => {
+  // Display Alice's initial weekly status (change to Alice to make sure she publish something)
+  Alice.only(() => {
     const weekOutcomeArray0 = declassify(interact.seeWeekOutcomeArray(true,true));
   });
 
-  Creator.publish(weekOutcomeArray0);
+  Alice.publish(weekOutcomeArray0);
 
 /*
   var STOPPING = false;
@@ -190,10 +190,10 @@ export const main = Reach.App(() => {
 
     Creator.publish(weekOutcomeArray2);
 
-    // Creator assesses the overall outcome
-    // BW: inconsisent logic to weekly NFT
+    // Creator assesses the overall outcome (and did not pass overall before)
     const overallOutcome = ( weekOutcomeArray2[0] == true &&
-      weekOutcomeArray2[1] == true && weekOutcomeArray2[2] == true) ? true : false;
+      weekOutcomeArray2[1] == true && weekOutcomeArray2[2] == true &&
+      weekOutcomeArray0[2] == false ) ? true : false;
 
 /*
     // Display the overall outcome

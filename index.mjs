@@ -28,6 +28,7 @@ const WEEK = ['#1', '#2', '#3'];
 let weekOutcomeArray = [false, false, false];
 //let weekOutcomeArray = [false, true, false];
 //let weekOutcomeArray = [true, true, false];
+//let weekOutcomeArray = [true, true, true];
 
 // Create a total of 4 NFTs for each of the 3 weeks plus an overall
 // Note: NFT and POAR is actually different (use NFT for now)

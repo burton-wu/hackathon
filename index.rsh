@@ -37,9 +37,6 @@ export const main = Reach.App(() => {
 
   init();
 
-  // Only 1 NFT will be issued each time
-  const amtNFT = 1;
-
   // Creator creates 4 NFTs and publishes the parameters
   // Note: declassify can only occure with .only()
   // Note: check's (inside .only() and after publish) are required to make sure NFTs are distinct
@@ -144,6 +141,9 @@ export const main = Reach.App(() => {
     // Alice pays the assessment fee regardless the outcome
     Alice.pay(assessmentFee);
     transfer(assessmentFee).to(Creator);
+
+    // Only 1 NFT will be issued each time
+    const amtNFT = 1;
 
     // Alice gets the NFT for the week if weekOutcome is true
     if ( weekOutcome == true ) {

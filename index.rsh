@@ -64,11 +64,11 @@ export const main = Reach.App(() => {
 
   Alice.publish(weekOutcomeArray0);
 
-/*
   var STOPPING = false;
-  invariant (true); // BW: Not sure how to write this
+  invariant ( balance() == 0 && balance(nftId1) == 0 && balance(nftId2) == 0 &&
+              balance(nftId3) == 0 && balance(nftId4) == 0 );
   while ( STOPPING == false) {
-*/
+
     commit();
 
     // BW: Incorporate the while loop and put into parallelReduce if appropriate
@@ -215,13 +215,12 @@ export const main = Reach.App(() => {
 
     }
 
-    commit();
-/*
+    //commit();
+
     STOPPING = overallOutcome;
     continue;
   }  
 
   commit();
-*/
 
 });

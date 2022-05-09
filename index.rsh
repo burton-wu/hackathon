@@ -122,6 +122,7 @@ export const main = Reach.App(() => {
     // Note: Syntex for multiple scenarios -- outcome = (Condition1) ? x : (Condition2) ? y : z
     // Note: Only account balance and declared loop variables can be changed in rsh
     const weekOutcome = (weekPasscode == PASSCODE[weekNumber]) ? true : false;
+    
 /*
     // Display the outcome for the week
     // BW: This is not really needed and will be removed
@@ -142,6 +143,7 @@ export const main = Reach.App(() => {
     Alice.pay(assessmentFee);
     transfer(assessmentFee).to(Creator);
 
+/* 2022-05-06
     // Only 1 NFT will be issued each time
     const amtNFT = 1;
 
@@ -166,15 +168,15 @@ export const main = Reach.App(() => {
         }
 
       }
-  /*
-      if ( weekNumber < 4 ) {
-        commit();
-        Creator.pay([[amtNFT, nftIdArray[weekNumber]]]);
-        transfer([[amtNFT, nftIdArray[weekNumber]]]).to(Alice);
-      }
-  */
+
+      //if ( weekNumber < 4 ) {
+      //  commit();
+      //  Creator.pay([[amtNFT, nftIdArray[weekNumber]]]);
+      //  transfer([[amtNFT, nftIdArray[weekNumber]]]).to(Alice);
+      //}
 
     }
+  */
 
     commit();
 
@@ -202,6 +204,7 @@ export const main = Reach.App(() => {
     });
 */
 
+/* 2022-05-06
     // Creator issues the Overall NFT if all conditions have been met
     if ( overallOutcome == true ) {
 
@@ -214,7 +217,7 @@ export const main = Reach.App(() => {
       //transfer([[amtNFT, nftIdArray[3]]]).to(Alice);
 
     }
-
+*/
     //commit();
 
     STOPPING = overallOutcome;

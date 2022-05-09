@@ -1,3 +1,6 @@
+//export REACH_CONNECTOR_MODE=ALGO
+//../reach run
+
 import { loadStdlib, ask } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 const stdlib = await loadStdlib();
@@ -194,6 +197,23 @@ console.log(`Alice went from ${beforeNFTAlice3} to ${afterNFTAlice3} NFT of ${nf
 console.log(`Alice went from ${beforeNFTAlice4} to ${afterNFTAlice4} NFT of ${nftId4} (#4)`);
 */
 
+if ( weekOutcomeArray[0] == true ) {
+  console.log(`* Alice received Week 1's NFT`);
+}
+if ( weekOutcomeArray[1] == true ) {
+  console.log(`* Alice received Week 2's NFT`);
+}
+if ( weekOutcomeArray[2] == true ) {
+  console.log(`* Alice received Week 3's NFT`);
+}
+if ( weekOutcomeArray[0] == true && weekOutcomeArray[1] == true && weekOutcomeArray[2] == true ) {
+  console.log(`* Alice also received the Overall NFT`);
+}
+if ( weekOutcomeArray[0] == false && weekOutcomeArray[1] == false && weekOutcomeArray[2] == false ) {
+  console.log(`* No NFTs were issued to Alice`);
+}
+
+/* 2022-05-09
 if ( afterNFTAlice1 > 0 ) {
   console.log(`* Alice received Week 1's NFT of ${nftId1}`);
 }
@@ -209,3 +229,4 @@ if ( afterNFTAlice4 > 0 ) {
 if ( afterNFTAlice1 == 0 && afterNFTAlice2 == 0 && afterNFTAlice3 == 0 && afterNFTAlice4 == 0 ) {
   console.log(`* No NFTs were issued to Alice`);
 }
+*/

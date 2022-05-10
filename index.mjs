@@ -17,8 +17,7 @@ console.log(`Store the starting balances for Creator and Alice`);
 const beforeCreator = await getBalance(accCreator);
 const beforeAlice = await getBalance(accAlice);
 
-// Note: Creator starts the contract since Creator.publish() occur first
-// BW: This may need to change as we change the timing of NFT being created
+// Note: Alice starts the contract since she now publishs first
 console.log(`Establish the smart contract`);
 const ctcAlice = accAlice.contract(backend);
 const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());

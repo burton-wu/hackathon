@@ -38,6 +38,7 @@ export const main = Reach.App(() => {
   init();
 
   // Display Alice's initial weekly status (change to Alice to make sure she publish something)
+  // Note: For Reach to compile, but parties must publish
   Alice.only(() => {
     const weekOutcomeArray0 = declassify(interact.seeWeekOutcomeArray(true,true));
   });

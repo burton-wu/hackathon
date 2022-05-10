@@ -37,6 +37,14 @@ export const main = Reach.App(() => {
 
   init();
 
+  // Display Alice's initial weekly status (change to Alice to make sure she publish something)
+  Alice.only(() => {
+    const weekOutcomeArray0 = declassify(interact.seeWeekOutcomeArray(true,true));
+  });
+
+  Alice.publish(weekOutcomeArray0);
+  commit();
+
   // Creator creates 4 NFTs and publishes the parameters
   // Note: declassify can only occure with .only()
   // Note: check's (inside .only() and after publish) are required to make sure NFTs are distinct
@@ -54,15 +62,6 @@ export const main = Reach.App(() => {
   check(distinct(nftId1,nftId2,nftId3,nftId4)==true,"Invalid tokens.");
 
   //Creator.publish(nftIdArray);
-
-  commit();
-  
-  // Display Alice's initial weekly status (change to Alice to make sure she publish something)
-  Alice.only(() => {
-    const weekOutcomeArray0 = declassify(interact.seeWeekOutcomeArray(true,true));
-  });
-
-  Alice.publish(weekOutcomeArray0);
 
   var STOPPING = false;
   invariant ( balance() == 0 && balance(nftId1) == 0 && balance(nftId2) == 0 &&

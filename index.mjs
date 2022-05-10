@@ -20,8 +20,10 @@ const beforeAlice = await getBalance(accAlice);
 // Note: Creator starts the contract since Creator.publish() occur first
 // BW: This may need to change as we change the timing of NFT being created
 console.log(`Establish the smart contract`);
-const ctcCreator = accCreator.contract(backend);
-const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
+const ctcAlice = accAlice.contract(backend);
+const ctcCreator = accCreator.contract(backend, ctcAlice.getInfo());
+//const ctcCreator = accCreator.contract(backend);
+//const ctcAlice = accAlice.contract(backend, ctcCreator.getInfo());
 
 // There are 3 weeks worth of training
 const WEEK = ['#1', '#2', '#3'];
